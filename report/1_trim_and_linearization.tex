@@ -1,0 +1,30 @@
+\section{Trim and linearisation}
+The first step when designing the control system of an aircraft is to study the behavior of the aircraft due to control inputs or external disturbances from an equilibrium condition. If the aircraft we're not to be in equilibrium, deviation from the initial conditions would occur that are unrelated to the control inputs making the analysis more difficult.
+
+In the case of an aircraft this equilibrium condition is known as a trimmed flight condition. In order to determine the trimmed flight condition the states and inputs much be chosen such that the linear- and angular-accelerations are zero. For this assignment this is done by minimizing the following cost function.
+
+\begin{equation}
+    \label{eq:trim_cost}
+    cost = W_{h}\dot{h}^2 + 
+           W_{\phi}\dot{\phi}^2 +
+           W_{\theta}\dot{\theta}^2 + 
+           W_{\psi}\dot{\psi}^2 +
+           W_{V}\dot{V}^2 + 
+           W_{\alpha}\dot{\alpha}^2 + 
+           W_{\beta}\dot{\beta}^2 + 
+           W_{P}\dot{P}^2 +
+           W_{Q}\dot{Q}^2 +
+           W_{R}\dot{R}^2
+\end{equation}
+
+The weights can be used to select which states need to be optimized to zero since this can vary with the chosen flight conditions. All the flight states in the cost function are squared, which is what allows the trim condition to be found by minimizing the the cost function. Once the cost function returns zero, the trimmed flight condition states and inputs have been found.
+
+Performing the trimming procedure for 5 iterations in level flight for both flight conditions and both the high and low fidelity models yields the following final values for the cost function.
+
+\begin{center}
+    \begin{tabular}{ r | c | c }
+                               & high fidelity & low fidelity \\ \hline \hline
+     Assigned flight condition & $0.0506$ & $4.2997\cdot10^{-29}$ \\  
+     APA flight condition      & $7.1856\cdot10^{-6}$ & $5.1572\cdot10^{-29}$    
+    \end{tabular}
+\end{center}
