@@ -7,19 +7,19 @@ In the case of an aircraft this equilibrium condition is known as a trimmed flig
 
 \begin{equation}
     \label{eq:trim_cost}
-    cost = W_{h}\dot{h}^2 + 
+    cost = 5\dot{h}^2 + 
            W_{\phi}\dot{\phi}^2 +
            W_{\theta}\dot{\theta}^2 + 
            W_{\psi}\dot{\psi}^2 +
-           W_{V}\dot{V}^2 + 
-           W_{\alpha}\dot{\alpha}^2 + 
-           W_{\beta}\dot{\beta}^2 + 
-           W_{P}\dot{P}^2 +
-           W_{Q}\dot{Q}^2 +
-           W_{R}\dot{R}^2
+           2\dot{V_{tot}}^2 + 
+           10\dot{\alpha}^2 + 
+           10\dot{\beta}^2 + 
+           10\dot{P}^2 +
+           10\dot{Q}^2 +
+           10\dot{R}^2
 \end{equation}
 
-The weights can be used to select which states need to be optimized to zero since this can vary with the chosen flight conditions. All the flight states in the cost function are squared, which is what allows the trim condition to be found by minimizing the the cost function. Once the cost function returns zero, the trimmed flight condition states and inputs have been found.
+All the flight states in the cost function are squared, which is what allows the trim condition to be found by minimizing it. Once the cost function returns zero, the trimmed flight condition states and inputs have been found.
 
 Performing the trimming procedure for 5 iterations in level flight for both flight conditions and both the high and low fidelity models yields the following final values for the cost function.
 
@@ -70,9 +70,9 @@ The accelerometer output primarily depends on the velocity, angle of attack, pit
     }
 \end{equation}
 
-The transfer function has a zeros on the right hand side of the imaginary axis at $9.76++0j$. This zero is the one responsible for the normal acceleration to go the opposite direction of the reference signal in the first few fractions of a second. The physical explanation of this is that a pitch up maneuverer with the elevator produces a downwards force which causes the aircraft to accelerate downwards. Eventually the angle of attack will increase as the nose pitches up and the extra lift will accelerate the aircraft upwards.
+The transfer function has a zero on the right hand side of the imaginary axis at $9.76+0j$. This zero is the one responsible for the non-minimum-phase behavior. The physical explanation of this is that a pitch up maneuverer with the elevator produces a downwards force which causes the aircraft to accelerate downwards. Eventually the angle of attack will increase as the nose pitches up and the extra lift will accelerate the aircraft upwards.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.6\textwidth]{figures/an_elev_step}
     \label{fig:an_elev_step}
@@ -81,14 +81,14 @@ The transfer function has a zeros on the right hand side of the imaginary axis a
 
 Repeating the simulation for increasing values of $x_a$ shows that the zero moves away from the origin indicating that its influence becomes less dominant. When $x_a=5.9$ the zero has moved to the left side of the imaginary axis and the non-minimum-phase behavior disappears. Since the value of the zero is significantly larger than that the other zeros and poles, its motion is negligible. Increasing $x_a$ further moves the zero closer to origin and its motion reappears, this time in the direction of the reference signal.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.6\textwidth]{figures/an_elev_step_mult}
     \caption{Normal acceleration after a negative step input on the elevator for different values of $x_a=5.9$.}
     \label{fig:an_elev_step_mult}
 \end{figure}
 
-One property of the \emph{instantaneous center of rotation} is that the linear accelerations at that point are the same as that of the aircraft. A point in front of it will accelerate upwards with a pitch up manoeuvre and a point behind it will accelerate downwards during the same manoeuvre. Thus based on the effects of moving $x_a$, it fair to conclude that the instantaneous center of rotation must be near $x=5.9$. Another way to arrive at the same conclusion is that the acceleration due to rotation is caused by the zero mentioned in the previous section since this is the only zero that changes significantly with $x_a$. Thus the instantaneous center of rotation will be at the location where this zero is infinitely far away from the origin.
+One property of the \emph{instantaneous center of rotation} is that the linear accelerations at that point are the same as that of the overall aircraft. A point in front of it will accelerate upwards with a pitch up manoeuvre and a point behind it will accelerate downwards during the same manoeuvre. Thus based on the effects of moving $x_a$, it fair to conclude that the instantaneous center of rotation must be near $x=5.9$. Another way to arrive at the same conclusion is that the acceleration due to rotation is caused by the zero mentioned in the previous section since this is the only zero that changes significantly with $x_a$. Thus the instantaneous center of rotation will be at the location where this zero is infinitely far away from the origin.
 
 The pilot should be placed at or after the instantaneous center of rotation ($x_a\geq5.9\ ft$), this is because if he is placed before, he will initially feel the aircraft moving into the opposite direction he is commanding it to and this might confuse the pilot resulting in him compensating for an error that is not there. This could make the combined human-aircraft system unstable or at least difficult to control.
 
