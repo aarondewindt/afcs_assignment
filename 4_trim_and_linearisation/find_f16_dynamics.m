@@ -1,4 +1,4 @@
-function [model] = find_f16_dynamics(fidelity, altitude, velocity, trim_iterations)
+function [model] = find_f16_dynamics(system_name, fidelity, altitude, velocity, trim_iterations)
     global fi_flag_Simulink
 
     %% Initial guess for trim
@@ -25,17 +25,20 @@ function [model] = find_f16_dynamics(fidelity, altitude, velocity, trim_iteratio
     assignin('base','dLEF', dLEF)
     assignin('base','fi_flag_Simulink', fidelity)    
     [A, B, C, D] = linmod(...
-        'LIN_F16Block', ...
+        system_name, ...
         [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); ...
          trim_control_lin(3); dLEF; -trim_state_lin(8)*180/pi], ...
         [trim_thrust_lin; trim_control_lin(1); ...
          trim_control_lin(2); trim_control_lin(3)]);
 
     %% Make systems
+    ss_total = ss(A, B, C, D);
     ss_lon = longitudunal(A, B, C, D);
     ss_lat = lateral(A, B, C, D);
-       
-    model = struct();    
+    
+    %% Structure results
+    model = struct();
+    model.ss = ss_total;
     model.ss_lon = ss_lon;
     model.ss_lat = ss_lat;
     model.cost = cost;
