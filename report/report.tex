@@ -68,6 +68,9 @@
 \usetikzlibrary{shadows.blur}
 \usetikzlibrary{shapes}
 
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{report.bib}
+
 
 \newcommand{\e}[2]{#1\cdot 10^{#2}}
 
@@ -150,5 +153,8 @@
     \input{1_trim_and_linearization.tex}
     \input{2_open_loop_analysis.tex}
     \input{3_pitch_rate_command_system.tex}
+
+    \newpage
+    \printbibliography
 
 \end{document}

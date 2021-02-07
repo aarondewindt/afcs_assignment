@@ -34,7 +34,7 @@ function[Nbar]=rscale(a,b,c,d,k)
          % compute Nbar
          s = size(A,1);
          Z = [zeros([1,s]) 1];
-         N = inv([A,B;C,D])*Z';
+         N = pinv([A,B;C,D])*Z';
          Nx = N(1:s);
          Nu = N(1+s);
          Nbar=Nu + K*Nx;

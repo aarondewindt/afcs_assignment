@@ -47,16 +47,6 @@ The build-in matlab function \texttt{place(...)} is used to calculate the gain $
                 \end{bmatrix}
 \end{equation}
 
-\begin{equation}
-    \label{eq:gainkac}
-    K_{a/c}=\begin{bmatrix}
-                    0 & K_{\alpha} & 0 & K_q
-                \end{bmatrix}
-               =\begin{bmatrix}
-                    0 & -449.0440 & 0 & -151.8325
-                \end{bmatrix}
-\end{equation}
-
 The new closed loop system matrix $A$ can then be calculated using Equation~\ref{eq:aclosed} and the rest of the matrices are the same as that of the open loop system. The new closed loop system can be found in Equation~\ref{eq:closedloopsystem}.
 
 \begin{equation}
@@ -65,77 +55,32 @@ The new closed loop system matrix $A$ can then be calculated using Equation~\ref
 \end{equation}
 
 
-ans =
- 
-  A = 
-                   v       alpha       theta           q
-   v        -0.08894       -42.6      -32.17      -14.76
-   alpha  -0.0005042     -0.1553  -3.989e-14      0.9442
-   theta           0           0           0           1
-   q       1.228e-18      -7.544           0      -2.588
- 
-  B = 
-             delta_e
-   v        -0.07104
-   alpha  -0.0002308
-   theta           0
-   q        -0.01541
- 
-  C = 
-              v  alpha  theta      q
-   v          1      0      0      0
-   alpha      0      1      0      0
-   theta      0      0      1      0
-   q          0      0      0      1
- 
-  D = 
-          delta_e
-   v            0
-   alpha        0
-   theta        0
-   q            0
- 
-Continuous-time state-space model.
-
 \begin{equation}
     \label{eq:closedloopsystem}
     \begin{aligned}
-        A_{red}&=\begin{bmatrix}
-            -0.08894    &  -42.6   &   -32.17    &  -14.76   \\
-            -0.0005042  &  -0.1553 & -3.989e-14  &    0.9442 \\
-                     0  &        0 &          0  &         1 \\
-             1.228e-18  &   -7.544 &          0  &    -2.588
+        A_{closed}&=\begin{bmatrix}
+            -0.1553 &  0.9442 \\
+            -7.544  & -2.588 \\
         \end{bmatrix} &
-        B_{red}&=\begin{bmatrix}
-              -0.07104 \\
+        B_{closed}&=\begin{bmatrix}
             -0.0002308 \\
-                     0 \\
-              -0.01541
+            -0.01541
         \end{bmatrix} \\\\
-        C_{red}&=I_4 &
-        D_{red}&=0_{4,1}
+        C_{closed}&=I_2 &
+        D_{closed}&=0_{2,1}
     \end{aligned}
 \end{equation}
 
                                                                        
-Pole              Damping       Frequency      Time Constant  
-(rad/seconds)      (seconds)    
-                                 
-  
--1.37e+00 + 2.37e+00i     5.02e-01       2.74e+00         7.28e-01    
--1.37e+00 - 2.37e+00i     5.02e-01       2.74e+00         7.28e-01 
--4.17e-02 + 1.21e-01i     3.26e-01       1.28e-01         2.40e+01  
--4.17e-02 - 1.21e-01i     3.26e-01       1.28e-01         2.40e+01     
+                                                                 
 
-Calculating the damping and natural frequency of the closed loop system shows that the parameters are close to the required $\zeta=0.5$ and $\omega_n=0.03V\approx 2.74$
+Calculating the damping and natural frequency of the closed loop system shows that the parameters match the required $\zeta=0.5$ and $\omega_n=0.03V\approx 2.74$
 \begin{table}[h!]
     \centering
-    \begin{tabular}{ r | c c c c c }
-                     & Poles                           & $\zeta$        & $\omega_n$     \\ \hline \hline
-        Short period & $\e{-1.37}{-1} + \e{2.37}{-1}i$ & $\e{5.02}{-1}$ & $\e{2.74}{-1}$ \\  
-                     & $\e{-1.37}{-1} - \e{2.37}{-1}i$ & $\e{5.02}{-1}$ & $\e{2.74}{-1}$ \\ \hline
-        Phugoid      & $\e{-4.17}{-2} + \e{1.21}{-1}i$ & $\e{3.26}{-1}$ & $\e{1.28}{-1}$ \\   
-                     & $\e{-4.17}{-2} - \e{1.21}{-1}i$ & $\e{3.26}{-1}$ & $\e{1.28}{-1}$
+    \begin{tabular}{ c c c c c }
+         Poles         & $\zeta$        & $\omega_n$ \\ \hline \hline
+         $1.37 + 1.37i$ & $\e{5.00}{-1}$ & $2.74$     \\  
+         $1.37 - 1.37i$ & $\e{5.00}{-1}$ & $2.74$     \\ \hline
     \end{tabular}
     \caption{Longitudinal eigenmotions poles, damping rations, natural frequencies, periods and time to half amplitude.}
 \end{table}
@@ -161,9 +106,73 @@ The simulation results for both the open and closed loop systems using this init
     \label{fig:pc_vertgust}
 \end{figure}
 
-Category B: Those nonterminal Flight Phases that are normally accomplished using
-gradual maneuvers and without precision tracking, although accurate
-flight-path control may be required. Included in this Category are:
+The $T_{\theta_2}$ time constant cannot be modified by pole placement or by some other control loop structure. The reason is because it is located in the numerator of the transfer function and it's not possible to change the numerator using a feedback loop gain. 
+
+Placing the lead-lag filter inside of the loop on the forward path will make it end up in both the numerator and denominator of the closed loop transfer function. Thus making it impossible to replace the zero without without changing the damping ratio and natural frequency of the closed loop system.
+
+To modify $T_{\theta_2}$ a lead-lag prefilter can be placed before the closed loop system. The pole in the prefilter is used to cancel the current zero with $T_{\theta_2}$ in the closed loop, and the prefilter's zero end up in the overall transfer function, thus replacing the original zero.
+
+\begin{equation}
+    \frac{q(s)}{\delta_{el}(s)}=\frac{1+T_{\theta_2,new}}{1+T_{\theta_2,old}} \cdot
+        \frac{k_q \left(1+T_{\theta_2,old}\right)}{
+        s^2+2\zeta\omega_ns+\omega_n^2}
+        =
+        \frac{k_q \left(1+T_{\theta_2,new}\right)}{
+        s^2+2\zeta\omega_ns+\omega_n^2}
+\end{equation}
+
+Even with the prefilter the controller will still not track the reference pitch rate signal properly, there will be a steady state error that needs to be compensated for. The reason is because the signal coming from the feedback loop is scaled by the gain $K$ and thus the reference signal needs to be scaled as well.
+
+For this assignment the \texttt{rscale(...)} function which can be found at \cite{matlabrscale} is used. The final form of the precompensator is thus,
+
+\begin{equation}
+    N \cdot \frac{1+T_{\theta_2,new}}{1+T_{\theta_2,old}}
+\end{equation}
+
+Where $N$ is the scaling factor from \texttt{rscale(...)}.
+
+
+% Category B: Those nonterminal Flight Phases that are normally accomplished using
+% gradual maneuvers and without precision tracking, although accurate
+% flight-path control may be required. Included in this Category are:
+
+Figure~\ref{fig:pc_cap} shows the level 1 Control Anticipation Parameter criteria for Category B flight phases. According to \cite{milstd1797a}, Category B flights phases are normally accomplished using gradual maneuvers and without precision tracking, which includes cruise flight. As it can be seen, the controller satisfies the requirement.
+
+\begin{equation}
+    CAP=\frac{g\omega^2T_{\theta_2}}{V} \approx 0.1168
+\end{equation}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/pc_cap.pdf}    
+    \caption{Control Anticipation Parameter criteria for Category B flight phases and the location for the controlled system in the plot.}
+    \label{fig:pc_cap}
+\end{figure}
+
+Figure~\ref{fig:pc_cap} shows the pitch rate and pitch angle step response of the controlled system. The maximum pitch rate $q_m$ and steady state value $q_s$ are marked in the plot. 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/pc_pitch_resp.pdf}    
+    \caption{Pitch rate and pitch angle step response of the controlled system.}
+    \label{fig:pc_pitch_resp}
+\end{figure}
+
+
+
+Figure~\ref{fig:pc_cap} shows the satisfactory range of values to meet the Gibson dropback criterion. As it can be seen the controlled system satisfies the criteria.
+\begin{align}
+    \label{eq:gibvals}
+    \frac{DB}{q_s} &= T_{\theta_2} - \frac{2\zeta_{sp}}{\omega_{n_{sp}}} \approx 0.1099 \\
+    \frac{q_m}{q_s} &= \frac{1.4126}{1} = 1.4126
+\end{align}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/pc_gib.pdf}    
+    \caption{Pitch rate and pitch angle step response of the controlled system.}
+    \label{fig:pc_gib}
+\end{figure}
+
 
 
 \clearpage
