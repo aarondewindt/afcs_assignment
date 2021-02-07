@@ -37,7 +37,7 @@ The final cost for the high fidelity model are higher. The results for the APA f
 
 
 \subsection{Accelerometer Position Analysis}
-No changes are seen in the $A$ and $B$ matrix after adding the new vertical accelerometer output to the Simulink model. This is expected since the addition of the accelerometer output didn't change the dynamics of the aircraft. However the C and D matrices now have an extra row which corresponds to the new output. \autoref{eq:anss} shows the linearized output equation of the normal acceleration at the center of gravity ($x_a=0$).
+No changes are seen in the $A$ and $B$ matrix after adding the new vertical accelerometer output to the Simulink model. This is expected since the addition of the accelerometer output didn't change the dynamics of the aircraft. However the C and D matrices now have an extra row which corresponds to the new output. Equation~\ref{eq:anss} shows the linearized output equation of the normal acceleration at the center of gravity ($x_a=0$).
 
 \begin{equation}
     \label{eq:anss}
@@ -51,7 +51,7 @@ No changes are seen in the $A$ and $B$ matrix after adding the new vertical acce
     \end{bmatrix} u
 \end{equation}
 
-The accelerometer output primarily depends on the velocity, angle of attack, pitch rate and the normal load factor. The altitude and pitch angle also have a minor contribution, however since it is small these could be caused by errors in the model or linearizion process. \autoref{eq:tf_el_an} shows the transfer function from the elevator to normal acceleration.
+The accelerometer output primarily depends on the velocity, angle of attack, pitch rate and the normal load factor. The altitude and pitch angle also have a minor contribution, however since it is small these could be caused by errors in the model or linearizion process. Equation~\ref{eq:tf_el_an} shows the transfer function from the elevator to normal acceleration.
 
 \begin{equation}
     \label{eq:tf_el_an}
@@ -93,3 +93,6 @@ One property of the \emph{instantaneous center of rotation} is that the linear a
 The pilot should be placed at or after the instantaneous center of rotation ($x_a\geq5.9\ ft$), this is because if he is placed before, he will initially feel the aircraft moving into the opposite direction he is commanding it to and this might confuse the pilot resulting in him compensating for an error that is not there. This could make the combined human-aircraft system unstable or at least difficult to control.
 
 It is important to place the accelerometer close a node of the most important fuselage bending moment. The reason is because, as the aircraft flies, loads and vibrations acting on the aircraft will make the fuselage bend. The nodes are locations where the displacements due to vibrations or bending are zero. Thus placing the accelerometer far away from a node, will result in the accelerometer measuring extra accelerations due to vibrations or bending. 
+
+
+\clearpage
