@@ -57,20 +57,23 @@ function [model] = find_f16_dynamics(system_name, fidelity, altitude, velocity, 
     model.velocity = velocity;
 end
 
-function [ss_lon, ss_lon_ac] = longitudunal(A, B, C, D)
-    mat = [A B; C D];    
-    A_lon = mat([3 5 7 8 11 13 14], [3 5 7 8 11 13 14]);
-    B_lon = mat([3 5 7 8 11 13 14], [19 20]);
-    C_lon = mat([21 23 25 26 29], [3 5 7 8 11 13 14]);
-    D_lon = mat([21 23 25 26 29], [19 20]);
+function [ss_lon, ss_lon_ac] = longitudunal(A, B, C, D)  
+    mat = [A B; C D]; 
+    states_idxs = [7 8 5 11 14];
+    inputs_idxs = 20;
+       
+    A_lon = mat(states_idxs, states_idxs);
+    B_lon = mat(states_idxs, inputs_idxs);
+    C_lon = eye(4, 5);
+    D_lon = zeros(4, 1);
     ss_lon = ss(A_lon, B_lon, C_lon, D_lon, ...
-                'StateName', {'h', 'theta', 'v', 'alpha', ...
-                              'q', 'delta_t', 'delta_e'},...
-                'InputName', {'delta_t', 'delta_e'},...
-                'OutputName', {'h', 'theta', 'v', 'alpha', 'q'});
-        
-    A_lon_ac = A_lon([3, 4, 2, 5], [3, 4, 2, 5]);
-    B_lon_ac = A_lon([3, 4, 2, 5], 7);
+                'StateName', {'v', 'alpha', 'theta', 'q', 'delta_e'},...
+                'InputName', {'delta_e'},...
+                'OutputName', {'v', 'alpha', 'theta', 'q'});
+    
+            
+    A_lon_ac = A_lon(1:4, 1:4);
+    B_lon_ac = A_lon(1:4, end);
     C_lon_ac = eye(4);
     D_lon_ac = zeros(4, 1);
     ss_lon_ac = ss(A_lon_ac, B_lon_ac, C_lon_ac, D_lon_ac, ...
@@ -79,34 +82,22 @@ function [ss_lon, ss_lon_ac] = longitudunal(A, B, C, D)
                    'OutputName', {'v', 'alpha', 'theta', 'q'});
 end
 
-% function [ss_lat, ss_lat_ac] = lateral(A, B, C, D)
-%     ss_lat = 0.
-%     A_lat = A([9 4 10 12, 15, 16], [9 4 10 12, 15, 16]);
-%     
-%     A_lat_ac = A_lat(1:4, 1:4);
-%     B_lat_ac = A_lat(1:4, 5:6);
-%     C_lat_ac = eye(4);
-%     D_lat_ac = zeros(4, 2);
-%     ss_lat_ac = ss(A_lat_ac, B_lat_ac, C_lat_ac, D_lat_ac, ...
-%                 'StateName', {'beta', 'phi', 'p', 'r'},...
-%                 'InputName', {'delta_a', 'delta_r'},...
-%                 'OutputName', {'beta', 'phi', 'p', 'r'});
-% end
-
 function [ss_lat, ss_lat_ac] = lateral(A, B, C, D)
-    mat = [A B; C D];    
-    A_lat = mat([4 6 7 9 10 12 13 15 16], [4 6 7 9 10 12 13 15 16]);
-    B_lat = mat([4 6 7 9 10 12 13 15 16], [19 21 22]);
-    C_lat = mat([22 24 25 27 28 30], [4 6 7 9 10 12 13 15 16]);
-    D_lat = mat([22 24 25 27 28 30], [19 21 22]);
+    mat = [A B; C D]; 
+    states_idxs = [9 4 10 12 15 16];
+    inputs_idxs = [21 22];
+    
+    A_lat = mat(states_idxs, states_idxs);
+    B_lat = mat(states_idxs, inputs_idxs);
+    C_lat = eye(4, 6);
+    D_lat = zeros(4, 2);
     ss_lat = ss(A_lat, B_lat, C_lat, D_lat, ...
-                'StateName', {'phi', 'psi', 'v', 'beta', 'p', 'r', ...
-                              'delta_t', 'delta_a', 'delta_r'},...
-                'InputName', {'delta_t', 'delta_a', 'delta_r'},...
-                'OutputName', {'phi', 'psi', 'v', 'beta', 'p', 'r'});
+                'StateName', {'beta', 'phi', 'p', 'r', ...
+                              'delta_a', 'delta_r'},...
+                'OutputName', {'beta', 'phi', 'p', 'r'});
             
-    A_lat_ac = A_lat([4, 1, 5, 6], [4, 1, 5, 6]);
-    B_lat_ac = A_lat([4, 1, 5, 6], [8, 9]);
+    A_lat_ac = A_lat(1:4, 1:4);
+    B_lat_ac = A_lat(1:4, 5:6);
     C_lat_ac = eye(4);
     D_lat_ac = zeros(4, 2);
     ss_lat_ac = ss(A_lat_ac, B_lat_ac, C_lat_ac, D_lat_ac, ...
