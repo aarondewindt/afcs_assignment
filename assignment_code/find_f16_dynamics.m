@@ -38,6 +38,7 @@ function [model] = find_f16_dynamics(system_name, fidelity, altitude, velocity, 
     
     [ss_lon, ss_lon_ac] = longitudunal(A, B, C, D);
     [ss_lat, ss_lat_ac] = lateral(A, B, C, D);
+    [~, ss_landing] = longitudunal_incl_alt(A, B, C, D);
     
     %% Structure results
     model = struct();
@@ -46,7 +47,9 @@ function [model] = find_f16_dynamics(system_name, fidelity, altitude, velocity, 
     model.ss_lon_ac = ss_lon_ac;
     model.ss_lat = ss_lat;
     model.ss_lat_ac = ss_lat_ac;
+    model.ss_landing = ss_landing;
     model.cost = cost;
+    model.theta = xu(5);
     model.thrust = xu(13);
     model.delta_e = xu(14);
     model.delta_a = xu(15);
@@ -80,6 +83,31 @@ function [ss_lon, ss_lon_ac] = longitudunal(A, B, C, D)
                    'StateName', {'v', 'alpha', 'theta', 'q'},...
                    'InputName', {'delta_e'},...
                    'OutputName', {'v', 'alpha', 'theta', 'q'});
+end
+
+function [ss_lon, ss_lon_ac] = longitudunal_incl_alt(A, B, C, D)  
+    mat = [A B; C D]; 
+    states_idxs = [3 7 8 5 11 13 14];
+    inputs_idxs = [19 20];
+       
+    A_lon = mat(states_idxs, states_idxs);
+    B_lon = mat(states_idxs, inputs_idxs);
+    C_lon = eye(5, 7);
+    D_lon = zeros(5, 2);
+    ss_lon = ss(A_lon, B_lon, C_lon, D_lon, ...
+                'StateName', {'h', 'v', 'alpha', 'theta', 'q', 'delta_t', 'delta_e'},...
+                'InputName', {'delta_t', 'delta_e'},...
+                'OutputName', {'h', 'v', 'alpha', 'theta', 'q'});
+    
+            
+    A_lon_ac = A_lon(1:5, 1:5);
+    B_lon_ac = A_lon(1:5, 6:7);
+    C_lon_ac = [eye(5); A_lon_ac(1, :)];  % Add the derivative of h to get an output for the vertical velocity.
+    D_lon_ac = zeros(6, 2);
+    ss_lon_ac = ss(A_lon_ac, B_lon_ac, C_lon_ac, D_lon_ac, ...
+                   'StateName', {'h', 'v', 'alpha', 'theta', 'q'},...
+                   'InputName', {'delta_t', 'delta_e'},...
+                   'OutputName', {'h', 'v', 'alpha', 'theta', 'q', 'vy'});
 end
 
 function [ss_lat, ss_lat_ac] = lateral(A, B, C, D)
